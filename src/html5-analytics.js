@@ -1,23 +1,37 @@
 jQuery(function($) {
-    var debug = !! window.trackDebug;
-    
+    var debug;
+
+    function log() {
+        if (!! window.trackDebug) {
+            console.log.apply(console, arguments);
+        }
+    }
+
+    function warn() {
+        if (!! window.trackDebug) {
+            console.warn.apply(console, arguments);
+        }
+    }
+
     function trackHandler(event) {
-        var $el = $(this),
-            dataProps = [
-                'eventCategory', // data-event-category
-                'eventAction',   // data-event-action
-                'eventLabel'     // data-event-label
-            ],
-            data = {
-                hitType: 'event',
-                eventAction: event.type
-            },
-            key, prop, ga;
-        
+        var $el = $(this);
+        var dataProps = [
+            'eventCategory', // data-event-category
+            'eventAction',   // data-event-action
+            'eventLabel'     // data-event-label
+        ];
+        var data = {
+            hitType: 'event',
+            eventAction: event.type
+        };
+        var key;
+        var prop;
+        var ga;
+
         ga = window.ga || window.__gaTracker;
-        
-        if (debug && 'function' !== typeof ga) {
-            console.warn("Can't track this!", ga);
+
+        if ('function' !== typeof ga) {
+            warn("Can't track this!", ga);
             return;
         }
 
@@ -26,12 +40,10 @@ jQuery(function($) {
             data[prop] = $el.data(prop) || data[prop];
         }
 
-        if (debug) {
-            console.log('tracking', data);
-        }
-        
+        log('Tracking', data);
+
         ga('send', data);
     }
-    $(document).on('click', '[track-click],[track-submit]', trackHandler);
 
+    $(document).on('click', '[track-click],[track-submit]', trackHandler);
 });
